@@ -52,6 +52,47 @@ function LoginPage({ onLogin }) {
 // ─── Upload Form ──────────────────────────────────────────────
 function UploadForm({ token, onUploaded }) {
   const defaultTitle = 'USANDO O MELHOR CHEAT PARA BLOODSTRIKE MOBILE E PC| HACK INDETECTAVEL GRÁTIS!?💀';
+  const defaultDesc = `#bloodstrikemodmenu #hackbloodstrike #bloodstrikehack #bloodstrikemodmenu #cheatbloodstrike #bloodstrikehack
+#bloodstrike #aimbot #bloodstrikehack #bloodstrikemobile #hacker #aimbotgames #freeaimbot #hackparafreefire #bloodstrikemodmenu #bloodstrikeindonesia #bloodstrikebestsettings #bloodstrikefunnymoments #cheating #cheat #robloxhackscript #hackroblox #hackbloodstrike #bloodstrikehack #cheatbloodstrike #wallhack #onlyesp #esponly
+hacks para melhorar em Blood Strike, aimbot para Blood Strike, wallhack para Blood Strike, No recoil para blood strike, macros para Blood Strike, hacks para Blood Strike em 2025, aimbots para Blood Strike, wallhacks para Blood Strike, hacks para melhorar em Blood Strike., hack grátis para blood strike, hack ara blood strike, cheat para blood strike, no recoil e aimbot para blood strike, hack para bloodstrike, hack para blood strike pc, aimbot para blood strike
+blood strike hack cheat,bloodstrike,project bloodstrike gameplay,project bloodstrike early access,project bloodstrike ios gameplay,project bloodstrike android gameplay,project bloodstrike mobile,project bloodstrike,project bloodstrike ios,project bloodstrike android,project bloodstrike walkthrough,project bloodstrike new beta,project bloodstrike android download,project bloodstrike how to download,project bloodstrike ios download,project bloodstrike gameplay walkthrough,warzone mobile
+block strike hacks
+block strike hack mod menu
+cheat blood strike
+hack blooket code
+blooket-hacks cheats answers
+strike force heroes cheat codes
+i ready hack coins
+jude blooket hacks
+cheat project blood strike
+how to hack strongest punch simulator
+hack blood strike
+is blooket hacked
+is bloodborne hack and slash
+v bucks hack fortnite
+xp hack blooket
+x-hero cheat
+sudden strike 4 cheat codes pc
+hack blooket codes
+aimbot bloodstrike, bloodstrike aimbot,
+configaimbotbloodstrike, 
+config aimbot bloodstrike,
+config bloodstrike aim bot, 
+bloodstrike, blood strike,
+bloodstrikeaimlock, 
+bloodstrike hack, 
+bloodstrike cheat, 
+cheat blood strike,
+cheatbloodstrike, 
+configbloodstrike, 
+config bloodstrike,
+script bloodstrike, 
+bloodstrike global, 
+#bloodstrikemodmenu #bloodstrikehack #cheatbloodstrike
+#cheatbloodstrike #bloodstrikehack #bloodstrikemodmenu 
+#bloodstrike #aimbot #bloodstrikehack #bloodstrikemobile #hacker #aimbotgames #freeaimbot #hackparafreefire #bloodstrikemodmenu #bloodstrikeindonesia #bloodstrikebestsettings #bloodstrikefunnymoments #cheating #cheat #robloxhackscript #hackroblox #hackbloodstrike #bloodstrikehack #cheatbloodstrike
+AIMBOT, ESP BOX,LINE,SILIENT AIM FOR BLOOD STRIKE THE BEAST 2025 ( PARA PC /IOS/MOBILE)!
+THE ROAD TO RANK 1 |  BLOOD STRIKE PC | TOP 1AIMBOT, ESP BOX,LINE,SILIENT AIM FOR BLOOD STRIKE THE BEAST 2025 ( PC /IOS/MOBILE)`;
   const [files, setFiles] = useState([]);
   const [titles, setTitles] = useState([]);
   const [descriptions, setDescriptions] = useState([]);
@@ -68,7 +109,7 @@ function UploadForm({ token, onUploaded }) {
     const selected = Array.from(e.target.files);
     setFiles(selected);
     setTitles(selected.map(() => defaultTitle));
-    setDescriptions(selected.map(() => ''));
+    setDescriptions(selected.map(() => defaultDesc));
     setSuccess('');
     setError('');
   };
