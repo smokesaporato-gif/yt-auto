@@ -1,0 +1,157 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #0a0a0a;
+  color: #e5e5e5;
+  min-height: 100vh;
+}
+
+/* ─── Login ──────────────────────────── */
+.login-page {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: #0a0a0a;
+}
+
+.login-card {
+  background: #141414; border: 1px solid #2c2c2e; border-radius: 16px;
+  padding: 48px; width: 380px; text-align: center;
+}
+
+.login-logo {
+  font-size: 48px; margin-bottom: 16px;
+  background: linear-gradient(135deg, #ff0000, #ff4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.login-card h1 { font-size: 24px; margin-bottom: 8px; }
+.login-card p { color: #98989d; margin-bottom: 24px; font-size: 14px; }
+
+.login-card input {
+  width: 100%; padding: 12px 16px; margin-bottom: 12px;
+  background: #1c1c1e; border: 1px solid #38383a; border-radius: 10px;
+  color: #f5f5f7; font-size: 14px; outline: none;
+}
+
+.login-card input:focus { border-color: #ff0000; }
+
+.login-card button {
+  width: 100%; padding: 12px; margin-top: 8px;
+  background: #ff0000; color: #fff; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;
+}
+
+.login-card button:hover { background: #cc0000; }
+.login-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Header ─────────────────────────── */
+.app header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 32px; background: #111; border-bottom: 1px solid #2c2c2e;
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+.logo {
+  font-size: 28px;
+  background: linear-gradient(135deg, #ff0000, #ff4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+header h1 { font-size: 18px; font-weight: 600; }
+
+.btn-logout {
+  padding: 8px 20px; background: #1c1c1e; border: 1px solid #38383a;
+  border-radius: 8px; color: #98989d; cursor: pointer; font-size: 13px; transition: 0.2s;
+}
+.btn-logout:hover { background: #2c2c2e; color: #f5f5f7; }
+
+/* ─── Main ───────────────────────────── */
+main {
+  max-width: 900px; margin: 32px auto; padding: 0 24px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+/* ─── Upload Form ────────────────────── */
+.upload-form {
+  background: #141414; border: 1px solid #2c2c2e; border-radius: 16px; padding: 28px;
+}
+
+.upload-form h2 { font-size: 18px; margin-bottom: 20px; }
+
+.upload-form form { display: flex; flex-direction: column; gap: 12px; }
+
+.file-drop {
+  border: 2px dashed #38383a; border-radius: 12px; padding: 32px;
+  text-align: center; cursor: pointer; transition: 0.2s; color: #98989d;
+}
+.file-drop:hover { border-color: #ff0000; color: #f5f5f7; }
+.file-name { color: #f5f5f7; font-weight: 500; }
+
+.upload-form input, .upload-form textarea, .upload-form select {
+  padding: 12px 16px; background: #1c1c1e; border: 1px solid #38383a;
+  border-radius: 10px; color: #f5f5f7; font-size: 14px; outline: none;
+  font-family: inherit; resize: vertical;
+}
+.upload-form input:focus, .upload-form textarea:focus { border-color: #ff0000; }
+
+.upload-form select { cursor: pointer; }
+.upload-form select option { background: #1c1c1e; }
+
+.upload-form button {
+  padding: 14px; background: #ff0000; color: #fff; border: none;
+  border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;
+}
+.upload-form button:hover { background: #cc0000; }
+.upload-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Progress ───────────────────────── */
+.progress-bar {
+  position: relative; height: 32px; background: #1c1c1e;
+  border-radius: 10px; overflow: hidden; border: 1px solid #38383a;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, #ff0000, #ff4444);
+  transition: width 0.3s; border-radius: 10px;
+}
+.progress-bar span {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 13px; font-weight: 600; color: #fff;
+}
+
+/* ─── Error ──────────────────────────── */
+.error {
+  padding: 10px 16px; background: #2d1215; border: 1px solid #f87171;
+  border-radius: 8px; color: #f87171; font-size: 13px;
+}
+
+/* ─── Video Queue ────────────────────── */
+.video-queue {
+  background: #141414; border: 1px solid #2c2c2e; border-radius: 16px; padding: 28px;
+}
+.video-queue h2 { font-size: 18px; margin-bottom: 16px; }
+.empty { color: #48484a; text-align: center; padding: 32px; }
+.queue-loading { text-align: center; padding: 32px; color: #98989d; }
+
+.video-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: #1c1c1e; border-radius: 10px; margin-bottom: 8px;
+}
+
+.video-info { flex: 1; }
+.video-title { font-weight: 500; font-size: 14px; margin-bottom: 4px; }
+.video-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+
+.status-badge { font-weight: 600; }
+.yt-link { color: #60a5fa; text-decoration: none; }
+.yt-link:hover { text-decoration: underline; }
+.video-error { color: #f87171; font-size: 11px; }
+
+.video-actions { display: flex; gap: 8px; }
+
+.btn-retry, .btn-delete {
+  padding: 6px 12px; border: 1px solid #38383a; border-radius: 8px;
+  background: #141414; color: #98989d; cursor: pointer; font-size: 12px; transition: 0.2s;
+}
+.btn-retry:hover { background: #2c2c2e; color: #fbbf24; }
+.btn-delete:hover { background: #2c2c2e; color: #f87171; }
