@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 
-// Use relative URL in production, localhost in dev
 const API = window.location.hostname === 'localhost'
   ? 'http://localhost:3001/api'
   : '/api';
 
-// ─── Login Page ───────────────────────────────────────────────
+// ─── Login ────────────────────────────────────────────────────
 function LoginPage({ onLogin }) {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
@@ -52,34 +51,74 @@ function LoginPage({ onLogin }) {
 
 // ─── Upload Form ──────────────────────────────────────────────
 function UploadForm({ token, onUploaded }) {
-  const [file, setFile] = useState(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [tags, setTags] = useState('');
+  const [files, setFiles] = useState([]);
+  const [titles, setTitles] = useState([]);
+  const [descriptions, setDescriptions] = useState([]);
   const [privacy, setPrivacy] = useState('private');
+  const [startTime, setStartTime] = useState('');
+  const [intervalHours, setIntervalHours] = useState(24);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const fileInputRef = useRef(null);
+
+  const handleFiles = (e) => {
+    const selected = Array.from(e.target.files);
+    setFiles(selected);
+    setTitles(selected.map((f, i) => titles[i] || f.name.replace(/\.[^/.]+$/, '')));
+    setDescriptions(selected.map((f, i) => descriptions[i] || ''));
+    setSuccess('');
+    setError('');
+  };
+
+  const updateTitle = (idx, value) => {
+    const newTitles = [...titles];
+    newTitles[idx] = value;
+    setTitles(newTitles);
+  };
+
+  const updateDesc = (idx, value) => {
+    const newDescs = [...descriptions];
+    newDescs[idx] = value;
+    setDescriptions(newDescs);
+  };
+
+  const removeFile = (idx) => {
+    const newFiles = files.filter((_, i) => i !== idx);
+    setFiles(newFiles);
+    setTitles(titles.filter((_, i) => i !== idx));
+    setDescriptions(descriptions.filter((_, i) => i !== idx));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return setError('Selecione um vídeo');
-    if (!title) return setError('Título é obrigatório');
+    if (files.length === 0) return setError('Selecione pelo menos um vídeo');
+
+    // Validate all titles
+    for (let i = 0; i < titles.length; i++) {
+      if (!titles[i]?.trim()) return setError(`Título obrigatório para o vídeo ${i + 1}`);
+    }
 
     setUploading(true);
     setError('');
+    setSuccess('');
     setProgress(0);
 
     const formData = new FormData();
-    formData.append('video', file);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('tags', tags);
+    files.forEach(f => formData.append('videos', f));
+    formData.append('titles', JSON.stringify(titles));
+    formData.append('descriptions', JSON.stringify(descriptions));
     formData.append('privacy', privacy);
+
+    if (startTime) {
+      formData.append('startTime', new Date(startTime).toISOString());
+    }
+    formData.append('intervalHours', intervalHours);
 
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${API}/videos/upload`);
+      xhr.open('POST', `${API}/videos/upload-bulk`);
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
       xhr.upload.onprogress = (e) => {
@@ -90,7 +129,9 @@ function UploadForm({ token, onUploaded }) {
         try {
           const data = JSON.parse(xhr.responseText);
           if (xhr.status === 200) {
-            setFile(null); setTitle(''); setDescription(''); setTags(''); setProgress(0);
+            setSuccess(`✅ ${data.videos.length} vídeos agendados! Pode fechar o site.`);
+            setFiles([]); setTitles([]); setDescriptions([]);
+            if (fileInputRef.current) fileInputRef.current.value = '';
             onUploaded();
           } else {
             setError(data.error || 'Erro no upload');
@@ -109,22 +150,88 @@ function UploadForm({ token, onUploaded }) {
     }
   };
 
+  // Default start time: now
+  useEffect(() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    setStartTime(now.toISOString().slice(0, 16));
+  }, []);
+
   return (
     <div className="upload-form">
-      <h2>📤 Enviar Vídeo</h2>
+      <h2>📤 Enviar Vídeos</h2>
+      <p className="subtitle">Envie vários vídeos de uma vez. Eles serão postados automaticamente no horário agendado.</p>
+
       <form onSubmit={handleSubmit}>
-        <div className="file-drop" onClick={() => document.getElementById('fileInput').click()}>
-          <input id="fileInput" type="file" accept="video/*" hidden onChange={e => setFile(e.target.files[0])} />
-          {file ? (
-            <span className="file-name">🎬 {file.name} ({(file.size / 1024 / 1024).toFixed(1)} MB)</span>
+        <div className="file-drop" onClick={() => fileInputRef.current?.click()}>
+          <input ref={fileInputRef} type="file" accept="video/*" multiple hidden onChange={handleFiles} />
+          {files.length > 0 ? (
+            <span className="file-name">🎬 {files.length} vídeo(s) selecionado(s)</span>
           ) : (
-            <span>Clique para selecionar um vídeo (max 256MB)</span>
+            <span>Clique para selecionar vídeos (pode selecionar vários)</span>
           )}
         </div>
 
-        <input type="text" placeholder="Título do vídeo" value={title} onChange={e => setTitle(e.target.value)} />
-        <textarea placeholder="Descrição (opcional)" value={description} onChange={e => setDescription(e.target.value)} rows={4} />
-        <input type="text" placeholder="Tags (separadas por vírgula)" value={tags} onChange={e => setTags(e.target.value)} />
+        {files.length > 0 && (
+          <div className="video-list-editor">
+            {files.map((f, i) => (
+              <div key={i} className="video-item-editor">
+                <div className="video-item-header">
+                  <span className="video-number">#{i + 1}</span>
+                  <span className="video-filename">{f.name} ({(f.size / 1024 / 1024).toFixed(1)}MB)</span>
+                  <button type="button" className="btn-remove" onClick={() => removeFile(i)}>✕</button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Título do vídeo"
+                  value={titles[i] || ''}
+                  onChange={e => updateTitle(i, e.target.value)}
+                />
+                <textarea
+                  placeholder="Descrição (opcional)"
+                  value={descriptions[i] || ''}
+                  onChange={e => updateDesc(i, e.target.value)}
+                  rows={2}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="schedule-section">
+          <h3>⏰ Agendamento</h3>
+          <div className="schedule-row">
+            <div className="schedule-field">
+              <label>Começar a postar em:</label>
+              <input
+                type="datetime-local"
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+              />
+            </div>
+            <div className="schedule-field">
+              <label>Intervalo entre posts:</label>
+              <select value={intervalHours} onChange={e => setIntervalHours(Number(e.target.value))}>
+                <option value={1}>A cada 1 hora</option>
+                <option value={3}>A cada 3 horas</option>
+                <option value={6}>A cada 6 horas</option>
+                <option value={12}>A cada 12 horas</option>
+                <option value={24}>A cada 24 horas (1/dia)</option>
+                <option value={48}>A cada 48 horas (2/dias)</option>
+                <option value={72}>A cada 72 horas (3/dias)</option>
+                <option value={168}>A cada semana</option>
+              </select>
+            </div>
+          </div>
+          <p className="schedule-hint">
+            {files.length > 0 && startTime && (
+              <>Último vídeo será postado em: {
+                new Date(new Date(startTime).getTime() + ((files.length - 1) * intervalHours * 60 * 60 * 1000))
+                  .toLocaleString('pt-BR')
+              }</>
+            )}
+          </p>
+        </div>
 
         <select value={privacy} onChange={e => setPrivacy(e.target.value)}>
           <option value="private">🔒 Privado</option>
@@ -140,16 +247,17 @@ function UploadForm({ token, onUploaded }) {
         )}
 
         {error && <div className="error">{error}</div>}
+        {success && <div className="success-msg">{success}</div>}
 
         <button type="submit" disabled={uploading}>
-          {uploading ? 'Enviando...' : '🚀 Enviar para YouTube'}
+          {uploading ? 'Enviando...' : `🚀 Agendar ${files.length || ''} vídeo(s)`}
         </button>
       </form>
     </div>
   );
 }
 
-// ─── Video Queue ──────────────────────────────────────────────
+// ─── Queue ────────────────────────────────────────────────────
 function VideoQueue({ token, refreshKey }) {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -168,12 +276,12 @@ function VideoQueue({ token, refreshKey }) {
   useEffect(() => { loadVideos(); }, [loadVideos, refreshKey]);
 
   useEffect(() => {
-    const interval = setInterval(loadVideos, 5000);
+    const interval = setInterval(loadVideos, 10000);
     return () => clearInterval(interval);
   }, [loadVideos]);
 
   const deleteVideo = async (id) => {
-    if (!window.confirm('Deletar este vídeo da fila?')) return;
+    if (!window.confirm('Deletar este vídeo?')) return;
     await fetch(`${API}/videos/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
@@ -181,16 +289,8 @@ function VideoQueue({ token, refreshKey }) {
     loadVideos();
   };
 
-  const retryVideo = async (id) => {
-    await fetch(`${API}/videos/${id}/retry`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    loadVideos();
-  };
-
   const statusMap = {
-    pending: { icon: '⏳', label: 'Na fila', color: '#fbbf24' },
+    scheduled: { icon: '⏰', label: 'Agendado', color: '#a78bfa' },
     uploading: { icon: '⬆️', label: 'Enviando...', color: '#60a5fa' },
     done: { icon: '✅', label: 'Publicado', color: '#34d399' },
     error: { icon: '❌', label: 'Erro', color: '#f87171' }
@@ -200,27 +300,43 @@ function VideoQueue({ token, refreshKey }) {
 
   return (
     <div className="video-queue">
-      <h2>📋 Fila de Vídeos ({videos.length})</h2>
+      <h2>📋 Fila ({videos.length})</h2>
       {videos.length === 0 && <p className="empty">Nenhum vídeo na fila</p>}
       {videos.map(v => {
-        const st = statusMap[v.status] || statusMap.pending;
+        const st = statusMap[v.status] || statusMap.scheduled;
+        const scheduledDate = v.scheduledTime ? new Date(v.scheduledTime) : null;
         return (
-          <div key={v.id} className="video-card">
+          <div key={v.id} className={`video-card status-${v.status}`}>
             <div className="video-info">
               <div className="video-title">{v.title}</div>
               <div className="video-meta">
                 <span className="status-badge" style={{ color: st.color }}>{st.icon} {st.label}</span>
-                <span className="file-size">{v.fileSize}</span>
+                {v.fileSize && <span className="file-size">{v.fileSize}</span>}
+                {scheduledDate && v.status === 'scheduled' && (
+                  <span className="scheduled-time">
+                    📅 {scheduledDate.toLocaleDateString('pt-BR')} às {scheduledDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
+                {v.postedAt && (
+                  <span className="posted-time">
+                    Postado: {new Date(v.postedAt).toLocaleString('pt-BR')}
+                  </span>
+                )}
                 {v.youtubeId && (
                   <a href={`https://youtube.com/watch?v=${v.youtubeId}`} target="_blank" rel="noreferrer" className="yt-link">
-                    ▶ Ver no YouTube
+                    ▶ YouTube
                   </a>
                 )}
                 {v.error && <span className="video-error">{v.error}</span>}
               </div>
             </div>
             <div className="video-actions">
-              {v.status === 'error' && <button onClick={() => retryVideo(v.id)} className="btn-retry">🔄 Retry</button>}
+              {v.status === 'error' && (
+                <button onClick={async () => {
+                  await fetch(`${API}/videos/${v.id}/retry`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+                  loadVideos();
+                }} className="btn-retry">🔄</button>
+              )}
               <button onClick={() => deleteVideo(v.id)} className="btn-delete">🗑️</button>
             </div>
           </div>
@@ -230,7 +346,7 @@ function VideoQueue({ token, refreshKey }) {
   );
 }
 
-// ─── Main App ─────────────────────────────────────────────────
+// ─── App ──────────────────────────────────────────────────────
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [refreshKey, setRefreshKey] = useState(0);
