@@ -45,7 +45,7 @@ async function uploadToYouTube({ filePath, title, description, tags, privacy }) 
 
   // Auto-comment
   try {
-    await youtube.commentThreads.insert({
+    const commentRes = await youtube.commentThreads.insert({
       part: ['snippet'],
       requestBody: {
         snippet: {
@@ -58,9 +58,12 @@ async function uploadToYouTube({ filePath, title, description, tags, privacy }) 
         }
       }
     });
-    console.log(`[YT-Auto] 💬 Comment posted on ${videoId}`);
+    console.log(`[YT-Auto] 💬 Comment posted on ${videoId}:`, commentRes.status);
   } catch (err) {
-    console.error(`[YT-Auto] ⚠️ Failed to comment on ${videoId}: ${err.message}`);
+    console.error(`[YT-Auto] ⚠️ Failed to comment on ${videoId}:`);
+    console.error(`  Status: ${err.code || err.response?.status}`);
+    console.error(`  Message: ${err.message}`);
+    if (err.response?.data) console.error(`  Data:`, JSON.stringify(err.response.data));
   }
 
   return {
