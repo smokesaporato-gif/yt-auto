@@ -29,7 +29,7 @@ async function uploadToYouTube({ filePath, title, description, tags, privacy }) 
         title,
         description,
         tags: tags || [],
-        categoryId: '22' // People & Blogs
+        categoryId: '22'
       },
       status: {
         privacyStatus: privacy || 'private',
@@ -41,8 +41,30 @@ async function uploadToYouTube({ filePath, title, description, tags, privacy }) 
     }
   });
 
+  const videoId = response.data.id;
+
+  // Auto-comment
+  try {
+    await youtube.commentThreads.insert({
+      part: ['snippet'],
+      requestBody: {
+        snippet: {
+          videoId: videoId,
+          topLevelComment: {
+            snippet: {
+              textOriginal: 'Link para adquirir: https://discord.com/invite/u5JPKwTKEM\nUse o cupom: SMOKE'
+            }
+          }
+        }
+      }
+    });
+    console.log(`[YT-Auto] 💬 Comment posted on ${videoId}`);
+  } catch (err) {
+    console.error(`[YT-Auto] ⚠️ Failed to comment on ${videoId}: ${err.message}`);
+  }
+
   return {
-    videoId: response.data.id,
+    videoId,
     title: response.data.snippet.title,
     privacy: response.data.status.privacyStatus
   };
@@ -53,7 +75,10 @@ function getAuthUrl() {
   return oauth2.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
-    scope: ['https://www.googleapis.com/auth/youtube.upload']
+    scope: [
+      'https://www.googleapis.com/auth/youtube.upload',
+      'https://www.googleapis.com/auth/youtube.force-ssl'
+    ]
   });
 }
 
