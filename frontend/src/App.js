@@ -51,6 +51,7 @@ function LoginPage({ onLogin }) {
 
 // ─── Upload Form ──────────────────────────────────────────────
 function UploadForm({ token, onUploaded }) {
+  const defaultTitle = 'USANDO O MELHOR CHEAT PARA BLOODSTRIKE MOBILE E PC| HACK INDETECTAVEL GRÁTIS!?💀';
   const [files, setFiles] = useState([]);
   const [titles, setTitles] = useState([]);
   const [descriptions, setDescriptions] = useState([]);
@@ -66,8 +67,8 @@ function UploadForm({ token, onUploaded }) {
   const handleFiles = (e) => {
     const selected = Array.from(e.target.files);
     setFiles(selected);
-    setTitles(selected.map((f, i) => titles[i] || f.name.replace(/\.[^/.]+$/, '')));
-    setDescriptions(selected.map((f, i) => descriptions[i] || ''));
+    setTitles(selected.map(() => defaultTitle));
+    setDescriptions(selected.map(() => ''));
     setSuccess('');
     setError('');
   };
